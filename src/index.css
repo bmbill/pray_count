@@ -192,6 +192,18 @@ select {
   color: var(--text);
 }
 textarea { min-height: 90px; resize: vertical; }
+
+/* iOS 日期框修正：避免原生外觀把文字擠出框外 */
+input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+  text-align: left;
+  font-size: 1em;
+}
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+}
 input:focus,
 textarea:focus,
 select:focus {

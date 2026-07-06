@@ -6,6 +6,7 @@ export interface UserSettings {
   fontFamily: 'default' | 'kai' | 'ming'
   theme: 'warm' | 'light' | 'dark'
   tutorialDone: boolean
+  projectOrder?: string[]
 }
 
 export interface AppUser {

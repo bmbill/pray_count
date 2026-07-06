@@ -59,6 +59,11 @@ export const translations = {
     'home.startLabel': '開始',
     'home.endLabel': '結束',
     'home.noEnd': '長期進行',
+    'home.endedSection': '已結束的小組',
+    'home.reorder': '調整順序',
+    'home.reorderDone': '完成排序',
+    'home.moveUp': '上移',
+    'home.moveDown': '下移',
 
     'project.create.title': '建立新小組',
     'project.name': '小組名稱',
@@ -119,6 +124,7 @@ export const translations = {
     'stats.ranking': '排行榜',
     'stats.rank': '第 {n} 名',
     'stats.noData': '這段期間還沒有紀錄',
+    'stats.rangeAll': '全部時間（至今）',
 
     'profile.title': '我的功課',
     'profile.name': '姓名',
@@ -212,6 +218,11 @@ export const translations = {
     'home.startLabel': 'Start',
     'home.endLabel': 'End',
     'home.noEnd': 'Ongoing',
+    'home.endedSection': 'Ended groups',
+    'home.reorder': 'Reorder',
+    'home.reorderDone': 'Done',
+    'home.moveUp': 'Move up',
+    'home.moveDown': 'Move down',
 
     'project.create.title': 'Create a group',
     'project.name': 'Group name',
@@ -272,6 +283,7 @@ export const translations = {
     'stats.ranking': 'Ranking',
     'stats.rank': 'No. {n}',
     'stats.noData': 'No records in this period',
+    'stats.rangeAll': 'All time (up to now)',
 
     'profile.title': 'My Practice',
     'profile.name': 'Name',

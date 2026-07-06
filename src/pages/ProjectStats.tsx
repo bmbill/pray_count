@@ -68,6 +68,21 @@ export function ProjectStats() {
         ))}
       </div>
 
+      {/* 目前查詢的時間區間 */}
+      {(() => {
+        if (period === 'custom') return null
+        const [rf, rt] = rangeFor(period, { from: customFrom, to: customTo })
+        const text = period === 'all' ? t('stats.rangeAll') : rf === rt ? rf : `${rf} ~ ${rt}`
+        return (
+          <div
+            className="muted center"
+            style={{ marginBottom: 14, fontSize: '0.95em', whiteSpace: 'nowrap', overflowX: 'auto' }}
+          >
+            📅 {text}
+          </div>
+        )
+      })()}
+
       {period === 'custom' && (
         <div className="card">
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
