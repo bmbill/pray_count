@@ -198,19 +198,24 @@ export function ProjectManage() {
 
         {/* 新增項目 */}
         <div style={{ marginTop: 14, borderTop: '2px dashed var(--border)', paddingTop: 14 }}>
-          <input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder={t('item.namePlaceholder')}
-            style={{ marginBottom: 8 }}
-          />
-          <input
-            type="number"
-            value={newTarget}
-            onChange={(e) => setNewTarget(e.target.value)}
-            placeholder={t('item.targetPlaceholder')}
-            style={{ marginBottom: 10 }}
-          />
+          <label className="field">
+            <span>{t('item.name')}</span>
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder={t('item.namePlaceholder')}
+            />
+          </label>
+          <label className="field">
+            <span>{t('item.target')}</span>
+            <input
+              type="number"
+              value={newTarget}
+              onChange={(e) => setNewTarget(e.target.value)}
+              placeholder={t('item.targetPlaceholder')}
+            />
+          </label>
           <button className="btn" onClick={addItem} disabled={!newName.trim()}>
             ＋ {t('item.add')}
           </button>
