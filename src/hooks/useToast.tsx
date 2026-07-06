@@ -4,10 +4,10 @@ export function useToast() {
   const [message, setMessage] = useState<string | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const show = useCallback((msg: string) => {
+  const show = useCallback((msg: string, ms = 2000) => {
     setMessage(msg)
     if (timer.current) clearTimeout(timer.current)
-    timer.current = setTimeout(() => setMessage(null), 2000)
+    timer.current = setTimeout(() => setMessage(null), ms)
   }, [])
 
   const Toast = useCallback(

@@ -63,6 +63,7 @@ export function ProjectRecord() {
         record_date: today(),
         user_id: user.id,
       })
+      show(t('record.saved'), 1000)
     } catch (e) {
       console.error(e)
       show(t('error.generic'))
@@ -110,7 +111,9 @@ export function ProjectRecord() {
               <div className="card-title">{row.item_name}</div>
               <div className="row-between">
                 <span className="muted">{t('record.todayCount', { n: formatNumber(row.my_today) })}</span>
-                <span className="big-number">{formatNumber(row.my_total)}</span>
+                <span key={row.my_total} className="big-number bump">
+                  {formatNumber(row.my_total)}
+                </span>
               </div>
               <div className="counter-row">
                 {STEPS.map((s) => (

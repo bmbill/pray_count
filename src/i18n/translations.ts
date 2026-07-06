@@ -82,6 +82,7 @@ export const translations = {
     'item.leaderOnly': '只有組長可以新增功課項目',
     'item.deleteConfirm': '確定刪除「{name}」嗎？相關紀錄會保留。',
 
+    'record.saved': '已記錄 ✓',
     'record.todayCount': '今天：{n}',
     'record.totalCount': '累計：{n}',
     'record.groupProgress': '整組 {current} / {target}',
@@ -216,6 +217,7 @@ export const translations = {
     'item.leaderOnly': 'Only leaders can add practices',
     'item.deleteConfirm': 'Delete “{name}”? Records will be kept.',
 
+    'record.saved': 'Recorded ✓',
     'record.todayCount': 'Today: {n}',
     'record.totalCount': 'Total: {n}',
     'record.groupProgress': 'Group {current} / {target}',
