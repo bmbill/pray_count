@@ -9,7 +9,8 @@ import { useToast } from '../hooks/useToast'
 import { today, formatNumber } from '../lib/dates'
 import type { Project } from '../types'
 
-const STEPS = [-100, -10, -1, 1, 10, 100]
+const PLUS = [1, 10, 100]
+const MINUS = [-1, -10, -100]
 
 export function ProjectRecord() {
   const { id } = useParams<{ id: string }>()
@@ -20,14 +21,12 @@ export function ProjectRecord() {
   const [project, setProject] = useState<Project | null>(null)
   const [rows, setRows] = useState<RecordViewRow[] | null>(null)
   const [isLeader, setIsLeader] = useState(false)
+  const [pending, setPending] = useState<Record<string, number>>({})
+  const [saving, setSaving] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id || !user) return
-    Promise.all([
-      api.getProject(id),
-      api.getRecordView(id, today()),
-      api.isLeader(id, user.id),
-    ])
+    Promise.all([api.getProject(id), api.getRecordView(id, today()), api.isLeader(id, user.id)])
       .then(([p, r, l]) => {
         setProject(p)
         setRows(r)
@@ -39,22 +38,21 @@ export function ProjectRecord() {
       })
   }, [id, user])
 
-  async function bump(row: RecordViewRow, delta: number) {
+  function adjust(row: RecordViewRow, delta: number) {
+    setPending((prev) => {
+      const cur = prev[row.item_id] ?? 0
+      let next = cur + delta
+      // 累計不可低於 0
+      if (row.my_total + next < 0) next = -row.my_total
+      return { ...prev, [row.item_id]: next }
+    })
+  }
+
+  async function submit(row: RecordViewRow) {
     if (!id || !user) return
-    // 不允許某項目變成負數（累計）
-    if (row.my_total + delta < 0) return
-    setRows((prev) =>
-      prev!.map((r) =>
-        r.item_id === row.item_id
-          ? {
-              ...r,
-              my_today: r.my_today + delta,
-              my_total: r.my_total + delta,
-              group_total: r.group_total + delta,
-            }
-          : r
-      )
-    )
+    const delta = pending[row.item_id] ?? 0
+    if (delta === 0 || saving) return
+    setSaving(row.item_id)
     try {
       await api.addRecord({
         item_id: row.item_id,
@@ -63,23 +61,25 @@ export function ProjectRecord() {
         record_date: today(),
         user_id: user.id,
       })
-      show(t('record.saved'), 1000)
-    } catch (e) {
-      console.error(e)
-      show(t('error.generic'))
-      // 還原
       setRows((prev) =>
         prev!.map((r) =>
           r.item_id === row.item_id
             ? {
                 ...r,
-                my_today: r.my_today - delta,
-                my_total: r.my_total - delta,
-                group_total: r.group_total - delta,
+                my_today: r.my_today + delta,
+                my_total: r.my_total + delta,
+                group_total: r.group_total + delta,
               }
             : r
         )
       )
+      setPending((prev) => ({ ...prev, [row.item_id]: 0 }))
+      show(t('record.saved'), 1200)
+    } catch (e) {
+      console.error(e)
+      show(t('error.generic'))
+    } finally {
+      setSaving(null)
     }
   }
 
@@ -102,6 +102,7 @@ export function ProjectRecord() {
         </div>
       ) : (
         rows.map((row) => {
+          const pend = pending[row.item_id] ?? 0
           const pct =
             row.target_count && row.target_count > 0
               ? Math.min(100, Math.round((row.group_total / row.target_count) * 100))
@@ -115,18 +116,41 @@ export function ProjectRecord() {
                   {formatNumber(row.my_total)}
                 </span>
               </div>
-              <div className="counter-row">
-                {STEPS.map((s) => (
-                  <button
-                    key={s}
-                    className={s > 0 ? 'plus' : 'minus'}
-                    onClick={() => bump(row, s)}
-                  >
-                    {s > 0 ? `+${s}` : s}
+
+              <div className="pending-box">
+                <div className="label">{t('record.pending')}</div>
+                <div className={`pending-num${pend === 0 ? ' zero' : ''}`}>
+                  {pend > 0 ? '+' : ''}
+                  {formatNumber(pend)}
+                </div>
+              </div>
+
+              <div className="counter-grid plus">
+                {PLUS.map((s) => (
+                  <button key={s} onClick={() => adjust(row, s)}>
+                    +{s}
                   </button>
                 ))}
               </div>
-              {pct !== null && (
+              <div className="counter-grid minus">
+                {MINUS.map((s) => (
+                  <button key={s} onClick={() => adjust(row, s)}>
+                    −{Math.abs(s)}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                className="btn"
+                style={{ marginTop: 12 }}
+                disabled={pend === 0 || saving === row.item_id}
+                onClick={() => submit(row)}
+              >
+                {t('record.submit')}
+                {pend !== 0 ? `（${pend > 0 ? '+' : ''}${formatNumber(pend)}）` : ''}
+              </button>
+
+              {pct !== null ? (
                 <>
                   <div className="progress">
                     <div style={{ width: `${pct}%` }} />
@@ -139,9 +163,8 @@ export function ProjectRecord() {
                     （{pct}%）
                   </div>
                 </>
-              )}
-              {pct === null && (
-                <div className="muted center" style={{ fontSize: '0.9em', marginTop: 8 }}>
+              ) : (
+                <div className="muted center" style={{ fontSize: '0.9em', marginTop: 10 }}>
                   {t('stats.group')} {t('common.total')}：{formatNumber(row.group_total)}
                 </div>
               )}

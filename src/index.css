@@ -234,14 +234,17 @@ select:focus {
   flex-wrap: wrap;
 }
 .segmented button {
-  flex: 1;
-  min-width: 72px;
+  flex: 1 1 auto;
+  min-width: 64px;
   min-height: 48px;
+  padding: 8px 10px;
   border: 2px solid var(--border);
   background: var(--surface);
   color: var(--text);
   border-radius: 12px;
   font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.25;
 }
 .segmented button.active {
   background: var(--primary);
@@ -249,30 +252,53 @@ select:focus {
   border-color: var(--primary);
 }
 
-/* ===== 記錄 ±按鈕 ===== */
-.counter-row {
+/* ===== 記錄 ±按鈕（每排 3 顆，加減各一排） ===== */
+.counter-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 6px;
-  margin-top: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
 }
-.counter-row button {
-  min-height: 52px;
-  border-radius: 12px;
+.counter-grid button {
+  min-height: 56px;
+  border-radius: 14px;
   border: 2px solid var(--border);
   font-weight: 700;
-  font-size: 0.95em;
+  font-size: 1.1em;
   background: var(--surface);
   color: var(--text);
 }
-.counter-row button.plus {
+.counter-grid button:active {
+  transform: scale(0.96);
+}
+.counter-grid.plus button {
   background: var(--primary);
   color: var(--on-primary);
   border-color: var(--primary);
 }
-.counter-row button.minus {
+.counter-grid.minus button {
   background: var(--surface-2);
   color: var(--text-soft);
+}
+
+/* 本次待送出的數量 */
+.pending-box {
+  text-align: center;
+  margin: 16px 0 4px;
+}
+.pending-box .label {
+  color: var(--text-soft);
+  font-size: 0.95em;
+}
+.pending-num {
+  font-size: 2.4em;
+  font-weight: 800;
+  color: var(--primary-dark);
+  line-height: 1.1;
+}
+.pending-num.zero {
+  color: var(--text-soft);
+  opacity: 0.5;
 }
 
 /* ===== 進度條 ===== */
