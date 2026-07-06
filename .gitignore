@@ -1,5 +1,6 @@
 node_modules
 dist
+vite.config.ts.timestamp-*
 dist-ssr
 *.local
 .DS_Store
