@@ -185,7 +185,7 @@ export function ProjectRecord() {
         })
       )}
 
-      {rows !== null && (
+      {rows !== null && !isLeader && (
         <div className="center" style={{ marginTop: 24 }}>
           <button className="link" style={{ color: 'var(--danger)' }} onClick={leave}>
             {t('project.leave')}
