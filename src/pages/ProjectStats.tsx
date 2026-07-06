@@ -26,7 +26,11 @@ export function ProjectStats() {
   useEffect(() => {
     if (!id || !user) return
     api.getProject(id).then(setProject)
-    api.isLeader(id, user.id).then(setIsLeader)
+    api.isLeader(id, user.id).then((l) => {
+      setIsLeader(l)
+      // 組長預設看「小組」，組員預設看「我的」
+      setScope(l ? 'group' : 'personal')
+    })
   }, [id, user])
 
   const load = useCallback(async () => {

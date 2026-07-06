@@ -30,10 +30,10 @@ body {
 
 /* ===== 字型（可調） ===== */
 [data-font-family='default'] {
-  --font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  --font-family: 'PingFang TC', 'Microsoft JhengHei', system-ui, 'Noto Sans TC', sans-serif;
 }
 [data-font-family='kai'] {
-  --font-family: 'DFKai-SB', 'BiauKai', 'KaiTi', 'Noto Serif TC', serif;
+  --font-family: 'LXGW WenKai TC', 'BiauKai', 'DFKai-SB', 'KaiTi', 'Kaiti TC', serif;
 }
 [data-font-family='ming'] {
   --font-family: 'Noto Serif TC', 'PMingLiU', 'MingLiU', 'Songti TC', serif;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { api, shareUrl, type MemberRow } from '../lib/api'
 import { PageHeader } from '../components/PageHeader'
@@ -11,6 +11,7 @@ import type { Item, Project } from '../types'
 
 export function ProjectManage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const { t, user } = useApp()
   const { show, Toast } = useToast()
 
@@ -119,6 +120,18 @@ export function ProjectManage() {
   function copyLink() {
     if (!project) return
     navigator.clipboard.writeText(shareUrl(project.share_slug)).then(() => show(t('common.copied')))
+  }
+
+  async function removeProject() {
+    if (!id || !project) return
+    if (!confirm(t('project.deleteConfirm', { name: project.name }))) return
+    try {
+      await api.deleteProject(id)
+      navigate('/')
+    } catch (e) {
+      console.error(e)
+      show(t('error.generic'))
+    }
   }
 
   if (!project || items === null) {
@@ -262,6 +275,13 @@ export function ProjectManage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* 刪除小組 */}
+      <div className="card">
+        <button className="btn danger" onClick={removeProject}>
+          🗑️ {t('project.delete')}
+        </button>
       </div>
       <Toast />
     </div>

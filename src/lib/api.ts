@@ -198,6 +198,28 @@ export const api = {
     return unwrap(data, error) as ProfileRow[]
   },
 
+  async leaveProject(projectId: string): Promise<void> {
+    const { error } = await supabase.rpc('leave_project', { p_project_id: projectId })
+    if (error) throw new Error(error.message)
+  },
+
+  async rejoinProject(projectId: string): Promise<void> {
+    const { error } = await supabase.rpc('rejoin_project', { p_project_id: projectId })
+    if (error) throw new Error(error.message)
+  },
+
+  async getLeftProjects(): Promise<
+    { id: string; name: string; share_slug: string; start_date: string | null; end_date: string | null }[]
+  > {
+    const { data, error } = await supabase.rpc('get_left_projects')
+    return unwrap(data, error) as any
+  },
+
+  async deleteProject(projectId: string): Promise<void> {
+    const { error } = await supabase.rpc('delete_project', { p_project_id: projectId })
+    if (error) throw new Error(error.message)
+  },
+
   async generatePairingCode(): Promise<string> {
     const { data, error } = await supabase.rpc('generate_pairing_code')
     return unwrap(data, error) as string

@@ -48,6 +48,18 @@ export function ProjectRecord() {
     })
   }
 
+  async function leave() {
+    if (!id) return
+    if (!confirm(t('project.leaveConfirm', { name: project?.name ?? '' }))) return
+    try {
+      await api.leaveProject(id)
+      navigate('/')
+    } catch (e: any) {
+      console.error(e)
+      show(e?.message === 'last_leader' ? t('project.leaveLastLeader') : t('error.generic'))
+    }
+  }
+
   async function submit(row: RecordViewRow) {
     if (!id || !user) return
     const delta = pending[row.item_id] ?? 0
@@ -171,6 +183,14 @@ export function ProjectRecord() {
             </div>
           )
         })
+      )}
+
+      {rows !== null && (
+        <div className="center" style={{ marginTop: 24 }}>
+          <button className="link" style={{ color: 'var(--danger)' }} onClick={leave}>
+            {t('project.leave')}
+          </button>
+        </div>
       )}
       <Toast />
     </div>

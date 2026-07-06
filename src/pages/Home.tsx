@@ -10,6 +10,7 @@ export function Home() {
   const { t, settings, updateSettings } = useApp()
   const navigate = useNavigate()
   const [projects, setProjects] = useState<MembershipProject[] | null>(null)
+  const [left, setLeft] = useState<{ id: string; name: string }[]>([])
   const [sortMode, setSortMode] = useState(false)
   const view = settings.viewMode ?? 'card'
 
@@ -18,7 +19,19 @@ export function Home() {
       console.error(e)
       setProjects([])
     })
+    api.getLeftProjects().then(setLeft).catch((e) => console.error(e))
   }, [])
+
+  async function rejoin(pid: string) {
+    try {
+      await api.rejoinProject(pid)
+      const [mine, leftList] = await Promise.all([api.getMyProjects(), api.getLeftProjects()])
+      setProjects(mine)
+      setLeft(leftList)
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   const ordered = useMemo(() => {
     if (!projects) return []
@@ -165,6 +178,22 @@ export function Home() {
               <div className="list">{ended.map((p) => row(p, false, 0))}</div>
             </>
           )}
+        </>
+      )}
+
+      {left.length > 0 && (
+        <>
+          <h2 style={{ fontSize: '1.05em', color: 'var(--text-soft)', marginTop: 24 }}>
+            {t('home.leftSection')}（{left.length}）
+          </h2>
+          {left.map((p) => (
+            <div key={p.id} className="card row-between" style={{ opacity: 0.85 }}>
+              <span style={{ fontWeight: 600 }}>{p.name}</span>
+              <button className="btn small" onClick={() => rejoin(p.id)}>
+                {t('home.rejoin')}
+              </button>
+            </div>
+          ))}
         </>
       )}
     </div>

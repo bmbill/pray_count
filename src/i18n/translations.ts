@@ -64,6 +64,8 @@ export const translations = {
     'home.reorderDone': '完成排序',
     'home.viewCard': '卡片',
     'home.viewList': '條列',
+    'home.leftSection': '已退出的小組',
+    'home.rejoin': '重新加入',
     'home.moveUp': '上移',
     'home.moveDown': '下移',
 
@@ -88,6 +90,11 @@ export const translations = {
     'project.items': '功課項目',
     'project.stats': '統計',
     'project.record': '記錄',
+    'project.leave': '退出小組',
+    'project.leaveConfirm': '確定退出「{name}」嗎？您的紀錄會保留，之後可以再重新加入。',
+    'project.leaveLastLeader': '您是唯一的組長，請先指派另一位組長，才能退出。',
+    'project.delete': '刪除小組',
+    'project.deleteConfirm': '確定要刪除「{name}」嗎？所有成員的紀錄都會一併刪除，且無法復原！',
 
     'join.title': '加入小組',
     'join.confirm': '確定加入「{name}」嗎？',
@@ -225,6 +232,8 @@ export const translations = {
     'home.reorderDone': 'Done',
     'home.viewCard': 'Cards',
     'home.viewList': 'List',
+    'home.leftSection': 'Groups you left',
+    'home.rejoin': 'Rejoin',
     'home.moveUp': 'Move up',
     'home.moveDown': 'Move down',
 
@@ -249,6 +258,11 @@ export const translations = {
     'project.items': 'Practices',
     'project.stats': 'Stats',
     'project.record': 'Record',
+    'project.leave': 'Leave group',
+    'project.leaveConfirm': 'Leave “{name}”? Your records are kept and you can rejoin later.',
+    'project.leaveLastLeader': 'You are the only leader. Please assign another leader before leaving.',
+    'project.delete': 'Delete group',
+    'project.deleteConfirm': 'Delete “{name}”? All members’ records will be permanently deleted!',
 
     'join.title': 'Join group',
     'join.confirm': 'Join “{name}”?',

@@ -54,6 +54,8 @@ create table if not exists public.project_members (
   joined_at timestamptz not null default now(),
   primary key (project_id, user_id)
 );
+-- 軟退出：left_at 有值代表已退出（保留紀錄，之後可重新加入）
+alter table public.project_members add column if not exists left_at timestamptz;
 
 create table if not exists public.items (
   id uuid primary key default gen_random_uuid(),
@@ -93,7 +95,7 @@ returns boolean
 language sql stable security definer set search_path = public as $$
   select exists(
     select 1 from public.project_members
-    where project_id = p_project_id and user_id = public.current_person_id()
+    where project_id = p_project_id and user_id = public.current_person_id() and left_at is null
   );
 $$;
 
@@ -305,9 +307,9 @@ begin
   select display_name into v_name from public.users where users.id = v_person;
   return query
     select p.id, p.name, p.description,
-      exists(select 1 from public.project_members m where m.project_id = p.id and m.user_id = v_person),
+      exists(select 1 from public.project_members m where m.project_id = p.id and m.user_id = v_person and m.left_at is null),
       exists(select 1 from public.project_members m join public.users u on u.id = m.user_id
-             where m.project_id = p.id and u.display_name = v_name and m.user_id <> v_person)
+             where m.project_id = p.id and u.display_name = v_name and m.user_id <> v_person and m.left_at is null)
     from public.projects p where p.id = v_pid;
 end;
 $$;
@@ -325,7 +327,7 @@ begin
   if v_proj.id is null then raise exception 'not_found'; end if;
   insert into public.project_members(project_id, user_id)
     values (v_proj.id, v_person)
-    on conflict do nothing;
+    on conflict (project_id, user_id) do update set left_at = null;
   return v_proj;
 end;
 $$;
@@ -343,7 +345,7 @@ language sql stable security definer set search_path = public as $$
     exists(select 1 from public.project_leaders l where l.project_id = p.id and l.user_id = public.current_person_id())
   from public.projects p
   join public.project_members m on m.project_id = p.id
-  where m.user_id = public.current_person_id()
+  where m.user_id = public.current_person_id() and m.left_at is null
   order by p.created_at desc;
 $$;
 
@@ -358,7 +360,7 @@ begin
       exists(select 1 from public.project_leaders l where l.project_id = p_project_id and l.user_id = m.user_id)
     from public.project_members m
     join public.users u on u.id = m.user_id
-    where m.project_id = p_project_id
+    where m.project_id = p_project_id and m.left_at is null
     order by u.display_name;
 end;
 $$;
@@ -460,7 +462,7 @@ begin
       left join public.records r on r.user_id = m.user_id and r.project_id = p_project_id
         and (p_from is null or r.record_date >= p_from)
         and (p_to is null or r.record_date <= p_to)
-      where m.project_id = p_project_id
+      where m.project_id = p_project_id and m.left_at is null
       group by m.user_id, u.display_name
     )
     select t.display_name, t.total, (t.user_id = v_person),
@@ -486,11 +488,88 @@ language sql stable security definer set search_path = public as $$
     coalesce(sum(r.delta) filter (where r.user_id = public.current_person_id()), 0),
     coalesce(sum(r.delta), 0)
   from public.projects p
-  join public.project_members me on me.project_id = p.id and me.user_id = public.current_person_id()
+  join public.project_members me on me.project_id = p.id and me.user_id = public.current_person_id() and me.left_at is null
   join public.items i on i.project_id = p.id and i.is_active
   left join public.records r on r.item_id = i.id
   group by p.id, p.name, i.id, i.name, i.target_count, i.sort_order, p.created_at
   order by p.created_at desc, i.sort_order;
+$$;
+
+-- ---------- RPC：退出 / 重新加入 / 刪除 ----------
+
+-- 退出小組（軟退出，保留紀錄）
+create or replace function public.leave_project(p_project_id uuid)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare
+  v_person uuid;
+  v_is_leader boolean;
+  v_leader_cnt int;
+  v_other_members int;
+begin
+  v_person := public.current_person_id();
+  if v_person is null then raise exception 'no_person'; end if;
+  if not exists (select 1 from public.project_members
+                 where project_id = p_project_id and user_id = v_person and left_at is null) then
+    raise exception 'not_member';
+  end if;
+  v_is_leader := exists (select 1 from public.project_leaders
+                         where project_id = p_project_id and user_id = v_person);
+  if v_is_leader then
+    select count(*) into v_leader_cnt from public.project_leaders where project_id = p_project_id;
+    select count(*) into v_other_members from public.project_members
+      where project_id = p_project_id and user_id <> v_person and left_at is null;
+    if v_leader_cnt <= 1 and v_other_members > 0 then
+      raise exception 'last_leader';
+    end if;
+    delete from public.project_leaders where project_id = p_project_id and user_id = v_person;
+  end if;
+  update public.project_members set left_at = now()
+    where project_id = p_project_id and user_id = v_person;
+end;
+$$;
+
+-- 重新加入（清除 left_at）
+create or replace function public.rejoin_project(p_project_id uuid)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare v_person uuid;
+begin
+  v_person := public.current_person_id();
+  if v_person is null then raise exception 'no_person'; end if;
+  update public.project_members set left_at = null
+    where project_id = p_project_id and user_id = v_person;
+  if not found then
+    insert into public.project_members(project_id, user_id) values (p_project_id, v_person)
+      on conflict (project_id, user_id) do update set left_at = null;
+  end if;
+  -- 若小組已無組長，讓重新加入者恢復為組長（避免無人可管理）
+  if not exists (select 1 from public.project_leaders where project_id = p_project_id) then
+    insert into public.project_leaders(project_id, user_id) values (p_project_id, v_person)
+      on conflict do nothing;
+  end if;
+end;
+$$;
+
+-- 已退出的小組（可重新加入）
+create or replace function public.get_left_projects()
+returns table(id uuid, name text, share_slug text, start_date date, end_date date, left_at timestamptz)
+language sql stable security definer set search_path = public as $$
+  select p.id, p.name, p.share_slug, p.start_date, p.end_date, m.left_at
+  from public.projects p
+  join public.project_members m on m.project_id = p.id
+  where m.user_id = public.current_person_id() and m.left_at is not null
+  order by m.left_at desc;
+$$;
+
+-- 刪除整個小組（僅組長；連同紀錄一併刪除）
+create or replace function public.delete_project(p_project_id uuid)
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.app_is_leader(p_project_id) then raise exception 'forbidden'; end if;
+  delete from public.projects where id = p_project_id;
+end;
 $$;
 
 -- ---------- 權限 ----------
