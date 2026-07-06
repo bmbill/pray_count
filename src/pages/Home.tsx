@@ -11,6 +11,7 @@ export function Home() {
   const navigate = useNavigate()
   const [projects, setProjects] = useState<MembershipProject[] | null>(null)
   const [sortMode, setSortMode] = useState(false)
+  const view = settings.viewMode ?? 'card'
 
   useEffect(() => {
     api.getMyProjects().then(setProjects).catch((e) => {
@@ -41,54 +42,65 @@ export function Home() {
     updateSettings({ projectOrder: [...arr.map((p) => p.id), ...ended.map((p) => p.id)] })
   }
 
+  function arrows(i: number) {
+    return (
+      <div style={{ display: 'flex', gap: 4 }}>
+        <button className="icon-btn" disabled={i === 0} onClick={(e) => { e.stopPropagation(); moveActive(i, -1) }} aria-label={t('home.moveUp')}>
+          ⬆️
+        </button>
+        <button className="icon-btn" disabled={i === active.length - 1} onClick={(e) => { e.stopPropagation(); moveActive(i, 1) }} aria-label={t('home.moveDown')}>
+          ⬇️
+        </button>
+      </div>
+    )
+  }
+
+  function roleBadge(p: MembershipProject) {
+    return (
+      <span className={`badge ${p.is_leader ? 'leader' : ''}`}>
+        {p.is_leader ? t('home.leader') : t('home.member')}
+      </span>
+    )
+  }
+
+  // 卡片
   function card(p: MembershipProject, canSort: boolean, i: number) {
-    const ended = isEnded(p)
+    const end = isEnded(p)
     return (
       <div
         key={p.id}
         className="card"
         onClick={() => !sortMode && navigate(`/p/${p.id}`)}
-        style={{ cursor: sortMode ? 'default' : 'pointer', opacity: ended ? 0.7 : 1 }}
+        style={{ cursor: sortMode ? 'default' : 'pointer', opacity: end ? 0.7 : 1 }}
       >
         <div className="row-between">
-          <div className="card-title" style={{ flex: 1 }}>
-            {p.name}
-          </div>
-          {sortMode && canSort ? (
-            <div style={{ display: 'flex', gap: 4 }}>
-              <button
-                className="icon-btn"
-                disabled={i === 0}
-                onClick={(e) => { e.stopPropagation(); moveActive(i, -1) }}
-                aria-label={t('home.moveUp')}
-              >
-                ⬆️
-              </button>
-              <button
-                className="icon-btn"
-                disabled={i === active.length - 1}
-                onClick={(e) => { e.stopPropagation(); moveActive(i, 1) }}
-                aria-label={t('home.moveDown')}
-              >
-                ⬇️
-              </button>
-            </div>
-          ) : (
-            <span className={`badge ${p.is_leader ? 'leader' : ''}`}>
-              {p.is_leader ? t('home.leader') : t('home.member')}
-            </span>
-          )}
+          <div className="card-title" style={{ flex: 1 }}>{p.name}</div>
+          {sortMode && canSort ? arrows(i) : roleBadge(p)}
         </div>
         {p.description && <div className="muted">{p.description}</div>}
-        <div
-          className="muted"
-          style={{ fontSize: '0.9em', marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: '2px 14px', alignItems: 'center' }}
-        >
+        <div className="muted" style={{ fontSize: '0.9em', marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: '2px 14px', alignItems: 'center' }}>
           {p.start_date && <span style={{ whiteSpace: 'nowrap' }}>{t('home.startLabel')}：{p.start_date}</span>}
           {p.end_date && <span style={{ whiteSpace: 'nowrap' }}>{t('home.endLabel')}：{p.end_date}</span>}
-          {ended && <span className="badge">{t('home.ended')}</span>}
+          {end && <span className="badge">{t('home.ended')}</span>}
         </div>
       </div>
+    )
+  }
+
+  // 條列
+  function row(p: MembershipProject, canSort: boolean, i: number) {
+    const end = isEnded(p)
+    return (
+      <button
+        key={p.id}
+        className="list-row"
+        onClick={() => !sortMode && navigate(`/p/${p.id}`)}
+        style={{ opacity: end ? 0.7 : 1, cursor: sortMode ? 'default' : 'pointer' }}
+      >
+        <span className="list-name">{p.name}</span>
+        {end && <span className="badge">{t('home.ended')}</span>}
+        {sortMode && canSort ? arrows(i) : roleBadge(p)}
+      </button>
     )
   }
 
@@ -96,17 +108,30 @@ export function Home() {
     <div className="page">
       <header className="page-header">
         <h1>{t('home.title')}</h1>
-        {active.length >= 2 && (
-          <button className="link" onClick={() => setSortMode((s) => !s)}>
-            {sortMode ? t('home.reorderDone') : t('home.reorder')}
-          </button>
-        )}
       </header>
 
       {!sortMode && (
-        <button className="btn" style={{ marginBottom: 20 }} onClick={() => navigate('/create')}>
+        <button className="btn" style={{ marginBottom: 16 }} onClick={() => navigate('/create')}>
           ＋ {t('home.createProject')}
         </button>
+      )}
+
+      {ordered.length > 0 && (
+        <div className="row-between" style={{ marginBottom: 14 }}>
+          <div className="segmented" style={{ maxWidth: 190, flex: '0 0 auto' }}>
+            <button className={view === 'card' ? 'active' : ''} onClick={() => updateSettings({ viewMode: 'card' })}>
+              🗂 {t('home.viewCard')}
+            </button>
+            <button className={view === 'list' ? 'active' : ''} onClick={() => updateSettings({ viewMode: 'list' })}>
+              ☰ {t('home.viewList')}
+            </button>
+          </div>
+          {active.length >= 2 && (
+            <button className="link" onClick={() => setSortMode((s) => !s)}>
+              {sortMode ? t('home.reorderDone') : t('home.reorder')}
+            </button>
+          )}
+        </div>
       )}
 
       {projects === null ? (
@@ -115,20 +140,29 @@ export function Home() {
         <div className="card center stack">
           <div style={{ fontSize: '3em' }}>🌱</div>
           <p className="muted">{t('home.empty')}</p>
-          <p className="muted" style={{ fontSize: '0.95em' }}>
-            {t('home.joinHint')}
-          </p>
+          <p className="muted" style={{ fontSize: '0.95em' }}>{t('home.joinHint')}</p>
         </div>
-      ) : (
+      ) : view === 'card' ? (
         <>
           {active.map((p, i) => card(p, true, i))}
-
           {ended.length > 0 && (
             <>
               <h2 style={{ fontSize: '1.05em', color: 'var(--text-soft)', marginTop: 24 }}>
                 {t('home.endedSection')}（{ended.length}）
               </h2>
               {ended.map((p) => card(p, false, 0))}
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          <div className="list">{active.map((p, i) => row(p, true, i))}</div>
+          {ended.length > 0 && (
+            <>
+              <h2 style={{ fontSize: '1.05em', color: 'var(--text-soft)', marginTop: 24 }}>
+                {t('home.endedSection')}（{ended.length}）
+              </h2>
+              <div className="list">{ended.map((p) => row(p, false, 0))}</div>
             </>
           )}
         </>

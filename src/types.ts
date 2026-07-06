@@ -7,6 +7,7 @@ export interface UserSettings {
   theme: 'warm' | 'light' | 'dark'
   tutorialDone: boolean
   projectOrder?: string[]
+  viewMode?: 'card' | 'list'
 }
 
 export interface AppUser {

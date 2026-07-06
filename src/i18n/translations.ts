@@ -62,6 +62,8 @@ export const translations = {
     'home.endedSection': '已結束的小組',
     'home.reorder': '調整順序',
     'home.reorderDone': '完成排序',
+    'home.viewCard': '卡片',
+    'home.viewList': '條列',
     'home.moveUp': '上移',
     'home.moveDown': '下移',
 
@@ -221,6 +223,8 @@ export const translations = {
     'home.endedSection': 'Ended groups',
     'home.reorder': 'Reorder',
     'home.reorderDone': 'Done',
+    'home.viewCard': 'Cards',
+    'home.viewList': 'List',
     'home.moveUp': 'Move up',
     'home.moveDown': 'Move down',
 

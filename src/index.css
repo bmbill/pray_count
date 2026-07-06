@@ -313,6 +313,43 @@ select:focus {
   opacity: 0.5;
 }
 
+/* ===== 條列式檢視 ===== */
+.list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px var(--shadow);
+  margin-bottom: 16px;
+}
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 16px;
+  min-height: 60px;
+  color: var(--text);
+  font-size: 1.05em;
+}
+.list-row:last-child {
+  border-bottom: none;
+}
+.list-row .list-name {
+  flex: 1;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.list-row:active {
+  background: var(--surface-2);
+}
+
 /* ===== 直式選項清單（附說明） ===== */
 .option-list {
   display: flex;
