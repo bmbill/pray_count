@@ -54,12 +54,16 @@ export function Home() {
                 className="muted"
                 style={{ fontSize: '0.9em', marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: '2px 14px', alignItems: 'center' }}
               >
-                <span style={{ whiteSpace: 'nowrap' }}>
-                  {t('home.startLabel')}：{p.start_date || '—'}
-                </span>
-                <span style={{ whiteSpace: 'nowrap' }}>
-                  {t('home.endLabel')}：{p.end_date || t('home.noEnd')}
-                </span>
+                {p.start_date && (
+                  <span style={{ whiteSpace: 'nowrap' }}>
+                    {t('home.startLabel')}：{p.start_date}
+                  </span>
+                )}
+                {p.end_date && (
+                  <span style={{ whiteSpace: 'nowrap' }}>
+                    {t('home.endLabel')}：{p.end_date}
+                  </span>
+                )}
                 {ended && <span className="badge">{t('home.ended')}</span>}
               </div>
             </div>
