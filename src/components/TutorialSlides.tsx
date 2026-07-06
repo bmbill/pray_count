@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext'
 const SLIDES = [
   { icon: '📿', titleKey: 'onboard.slide1.title', bodyKey: 'onboard.slide1.body' },
   { icon: '👨‍👩‍👧‍👦', titleKey: 'onboard.slide2.title', bodyKey: 'onboard.slide2.body' },
+  { icon: '🤝', titleKey: 'onboard.slide4.title', bodyKey: 'onboard.slide4.body' },
   { icon: '📈', titleKey: 'onboard.slide3.title', bodyKey: 'onboard.slide3.body' },
 ] as const
 

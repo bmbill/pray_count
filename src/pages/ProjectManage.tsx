@@ -4,11 +4,10 @@ import { useApp } from '../context/AppContext'
 import { api, shareUrl, type MemberRow } from '../lib/api'
 import { PageHeader } from '../components/PageHeader'
 import { ProjectTabs } from '../components/ProjectTabs'
+import { PrivacyPicker } from '../components/PrivacyPicker'
 import { Spinner } from '../components/Spinner'
 import { useToast } from '../hooks/useToast'
-import type { Item, PrivacyMode, Project } from '../types'
-
-const PRIVACY: PrivacyMode[] = ['totals_only', 'top3', 'show_all']
+import type { Item, Project } from '../types'
 
 export function ProjectManage() {
   const { id } = useParams<{ id: string }>()
@@ -239,13 +238,7 @@ export function ProjectManage() {
         </label>
         <label className="field">
           <span>{t('project.privacy')}</span>
-          <div className="segmented">
-            {PRIVACY.map((p) => (
-              <button key={p} className={project.privacy_mode === p ? 'active' : ''} onClick={() => saveProject({ privacy_mode: p })}>
-                {t(`project.privacy.${p}`)}
-              </button>
-            ))}
-          </div>
+          <PrivacyPicker value={project.privacy_mode} onChange={(v) => saveProject({ privacy_mode: v })} />
         </label>
       </div>
 

@@ -301,6 +301,52 @@ select:focus {
   opacity: 0.5;
 }
 
+/* ===== 直式選項清單（附說明） ===== */
+.option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.option-card {
+  position: relative;
+  width: 100%;
+  text-align: left;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 14px 16px 14px 46px;
+}
+.option-card::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 16px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  box-sizing: border-box;
+}
+.option-card.active {
+  border-color: var(--primary);
+  background: var(--surface-2);
+}
+.option-card.active::before {
+  border-color: var(--primary);
+  background: radial-gradient(var(--primary) 0 46%, transparent 50%);
+}
+.option-title {
+  font-weight: 700;
+  font-size: 1.05em;
+}
+.option-desc {
+  color: var(--text-soft);
+  font-size: 0.9em;
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
 /* ===== 進度條 ===== */
 .progress {
   height: 14px;

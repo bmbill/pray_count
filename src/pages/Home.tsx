@@ -50,9 +50,17 @@ export function Home() {
                 </span>
               </div>
               {p.description && <div className="muted">{p.description}</div>}
-              <div className="muted" style={{ fontSize: '0.9em', marginTop: 6 }}>
-                {p.start_date || '—'} → {p.end_date || '∞'}
-                {ended && <span className="badge" style={{ marginLeft: 8 }}>{t('home.ended')}</span>}
+              <div
+                className="muted"
+                style={{ fontSize: '0.9em', marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: '2px 14px', alignItems: 'center' }}
+              >
+                <span style={{ whiteSpace: 'nowrap' }}>
+                  {t('home.startLabel')}：{p.start_date || '—'}
+                </span>
+                <span style={{ whiteSpace: 'nowrap' }}>
+                  {t('home.endLabel')}：{p.end_date || t('home.noEnd')}
+                </span>
+                {ended && <span className="badge">{t('home.ended')}</span>}
               </div>
             </div>
           )

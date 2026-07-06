@@ -4,10 +4,9 @@ import { useApp } from '../context/AppContext'
 import { api, shareUrl } from '../lib/api'
 import type { PrivacyMode, Project } from '../types'
 import { PageHeader } from '../components/PageHeader'
+import { PrivacyPicker } from '../components/PrivacyPicker'
 import { useToast } from '../hooks/useToast'
 import { today } from '../lib/dates'
-
-const PRIVACY: PrivacyMode[] = ['totals_only', 'top3', 'show_all']
 
 export function CreateProject() {
   const { t } = useApp()
@@ -116,13 +115,7 @@ export function CreateProject() {
         )}
         <label className="field">
           <span>{t('project.privacy')}</span>
-          <div className="segmented">
-            {PRIVACY.map((p) => (
-              <button key={p} className={privacy === p ? 'active' : ''} onClick={() => setPrivacy(p)}>
-                {t(`project.privacy.${p}`)}
-              </button>
-            ))}
-          </div>
+          <PrivacyPicker value={privacy} onChange={setPrivacy} />
         </label>
         <button className="btn" onClick={submit} disabled={busy || !name.trim()}>
           {t('project.create.submit')}
