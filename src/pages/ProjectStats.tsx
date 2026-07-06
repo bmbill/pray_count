@@ -22,6 +22,8 @@ export function ProjectStats() {
   const [customTo, setCustomTo] = useState(today())
   const [stats, setStats] = useState<ItemStatRow[] | null>(null)
   const [ranking, setRanking] = useState<RankingRow[]>([])
+  const [breakdown, setBreakdown] = useState<Record<string, { display_name: string; total: number }[]>>({})
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     if (!id || !user) return
@@ -40,7 +42,22 @@ export function ProjectStats() {
     const [s, r] = await Promise.all([api.getItemStats(id, from, to), api.getRanking(id, from, to)])
     setStats(s)
     setRanking(r)
-  }, [id, period, customFrom, customTo])
+    if (isLeader) {
+      try {
+        const bd = await api.getMemberBreakdown(id, from, to)
+        const map: Record<string, { display_name: string; total: number }[]> = {}
+        bd.forEach((x) => {
+          ;(map[x.item_id] = map[x.item_id] || []).push({ display_name: x.display_name, total: x.total })
+        })
+        setBreakdown(map)
+      } catch (e) {
+        console.error(e)
+        setBreakdown({})
+      }
+    } else {
+      setBreakdown({})
+    }
+  }, [id, period, customFrom, customTo, isLeader])
 
   useEffect(() => {
     if (period !== 'custom') load().catch(console.error)
@@ -125,6 +142,31 @@ export function ProjectStats() {
                   {scope === 'group' && s.target_count != null && s.target_count > 0 && (
                     <div className="progress">
                       <div style={{ width: `${Math.min(100, Math.round((s.group_sum / s.target_count) * 100))}%` }} />
+                    </div>
+                  )}
+
+                  {scope === 'group' && isLeader && breakdown[s.item_id] && breakdown[s.item_id].length > 0 && (
+                    <div style={{ marginTop: 10 }}>
+                      <button
+                        className="link"
+                        onClick={() => setExpanded((e) => ({ ...e, [s.item_id]: !e[s.item_id] }))}
+                      >
+                        {expanded[s.item_id] ? '▲' : '▼'} {t('stats.memberDetail')}
+                      </button>
+                      {expanded[s.item_id] && (
+                        <div className="stack" style={{ marginTop: 8 }}>
+                          {breakdown[s.item_id].map((m, idx) => (
+                            <div
+                              key={idx}
+                              className="row-between"
+                              style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}
+                            >
+                              <span>{m.display_name}</span>
+                              <strong>{formatNumber(m.total)}</strong>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

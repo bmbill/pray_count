@@ -474,6 +474,26 @@ begin
 end;
 $$;
 
+-- 組長專用：每個功課項目、每位成員的明細（不受隱私設定影響）
+create or replace function public.get_member_breakdown(p_project_id uuid, p_from date, p_to date)
+returns table(item_id uuid, display_name text, total bigint)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.app_is_leader(p_project_id) then raise exception 'forbidden'; end if;
+  return query
+    select i.id, u.display_name, coalesce(sum(r.delta), 0)
+    from public.items i
+    join public.project_members m on m.project_id = p_project_id and m.left_at is null
+    join public.users u on u.id = m.user_id
+    left join public.records r on r.item_id = i.id and r.user_id = m.user_id
+      and (p_from is null or r.record_date >= p_from)
+      and (p_to is null or r.record_date <= p_to)
+    where i.project_id = p_project_id and i.is_active
+    group by i.id, i.sort_order, u.display_name, m.user_id
+    order by i.sort_order, coalesce(sum(r.delta), 0) desc, u.display_name;
+end;
+$$;
+
 -- 個人總覽：跨所有專案的每項功課完成狀況
 create or replace function public.get_profile_summary()
 returns table(

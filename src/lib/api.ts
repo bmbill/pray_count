@@ -198,6 +198,19 @@ export const api = {
     return unwrap(data, error) as ProfileRow[]
   },
 
+  async getMemberBreakdown(
+    projectId: string,
+    from: string | null,
+    to: string | null
+  ): Promise<{ item_id: string; display_name: string; total: number }[]> {
+    const { data, error } = await supabase.rpc('get_member_breakdown', {
+      p_project_id: projectId,
+      p_from: from,
+      p_to: to,
+    })
+    return unwrap(data, error) as any
+  },
+
   async leaveProject(projectId: string): Promise<void> {
     const { error } = await supabase.rpc('leave_project', { p_project_id: projectId })
     if (error) throw new Error(error.message)

@@ -134,6 +134,7 @@ export const translations = {
     'stats.rank': '第 {n} 名',
     'stats.noData': '這段期間還沒有紀錄',
     'stats.rangeAll': '全部時間（至今）',
+    'stats.memberDetail': '成員明細',
 
     'profile.title': '我的功課',
     'profile.name': '姓名',
@@ -302,6 +303,7 @@ export const translations = {
     'stats.rank': 'No. {n}',
     'stats.noData': 'No records in this period',
     'stats.rangeAll': 'All time (up to now)',
+    'stats.memberDetail': 'Member details',
 
     'profile.title': 'My Practice',
     'profile.name': 'Name',
