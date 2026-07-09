@@ -11,8 +11,12 @@ export function today(): string {
 }
 
 // 依期間回傳 [from, to]（含端點）。'all' 回傳 [null, null]。
-export function rangeFor(period: Period, custom?: { from: string; to: string }): [string | null, string | null] {
-  const d = dayjs()
+// anchor 為基準日期（預設今天），用於前後切換日/週/月。
+export function rangeFor(
+  period: Period,
+  custom?: { from: string; to: string; anchor?: string }
+): [string | null, string | null] {
+  const d = custom?.anchor ? dayjs(custom.anchor) : dayjs()
   switch (period) {
     case 'daily':
       return [d.format('YYYY-MM-DD'), d.format('YYYY-MM-DD')]

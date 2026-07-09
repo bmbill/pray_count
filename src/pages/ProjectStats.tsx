@@ -7,6 +7,7 @@ import { ProjectTabs } from '../components/ProjectTabs'
 import { Spinner } from '../components/Spinner'
 import { rangeFor, formatNumber, today, type Period } from '../lib/dates'
 import type { Project } from '../types'
+import dayjs from 'dayjs'
 
 const PERIODS: Period[] = ['daily', 'weekly', 'monthly', 'all', 'custom']
 
@@ -18,6 +19,7 @@ export function ProjectStats() {
   const [isLeader, setIsLeader] = useState(false)
   const [scope, setScope] = useState<'personal' | 'group'>('personal')
   const [period, setPeriod] = useState<Period>('weekly')
+  const [anchor, setAnchor] = useState(today())
   const [customFrom, setCustomFrom] = useState(today())
   const [customTo, setCustomTo] = useState(today())
   const [stats, setStats] = useState<ItemStatRow[] | null>(null)
@@ -38,7 +40,7 @@ export function ProjectStats() {
   const load = useCallback(async () => {
     if (!id) return
     setStats(null)
-    const [from, to] = rangeFor(period, { from: customFrom, to: customTo })
+    const [from, to] = rangeFor(period, { from: customFrom, to: customTo, anchor })
     const [s, r] = await Promise.all([api.getItemStats(id, from, to), api.getRanking(id, from, to)])
     setStats(s)
     setRanking(r)
@@ -57,11 +59,21 @@ export function ProjectStats() {
     } else {
       setBreakdown({})
     }
-  }, [id, period, customFrom, customTo, isLeader])
+  }, [id, period, customFrom, customTo, isLeader, anchor])
 
   useEffect(() => {
     if (period !== 'custom') load().catch(console.error)
   }, [period, load])
+
+  function shift(dir: -1 | 1) {
+    const unit = period === 'daily' ? 'day' : period === 'weekly' ? 'week' : 'month'
+    setAnchor((a) => dayjs(a).add(dir, unit).format('YYYY-MM-DD'))
+  }
+
+  function selectPeriod(p: Period) {
+    setPeriod(p)
+    setAnchor(today())
+  }
 
   const showRanking = scope === 'group' && ranking.length > 0
 
@@ -83,23 +95,36 @@ export function ProjectStats() {
       {/* 期間 */}
       <div className="segmented" style={{ marginBottom: 12 }}>
         {PERIODS.map((p) => (
-          <button key={p} className={period === p ? 'active' : ''} onClick={() => setPeriod(p)}>
+          <button key={p} className={period === p ? 'active' : ''} onClick={() => selectPeriod(p)}>
             {t(`stats.${p === 'all' ? 'all' : p === 'custom' ? 'custom' : p}`)}
           </button>
         ))}
       </div>
 
-      {/* 目前查詢的時間區間 */}
+      {/* 目前查詢的時間區間（日/週/月可用箭頭前後切換） */}
       {(() => {
         if (period === 'custom') return null
-        const [rf, rt] = rangeFor(period, { from: customFrom, to: customTo })
+        const [rf, rt] = rangeFor(period, { from: customFrom, to: customTo, anchor })
         const text = period === 'all' ? t('stats.rangeAll') : rf === rt ? rf : `${rf} ~ ${rt}`
+        const canShift = period === 'daily' || period === 'weekly' || period === 'monthly'
+        const canNext = canShift && !!rt && dayjs(rt).isBefore(dayjs(), 'day')
         return (
           <div
-            className="muted center"
-            style={{ marginBottom: 14, fontSize: '0.95em', whiteSpace: 'nowrap', overflowX: 'auto' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 14 }}
           >
-            📅 {text}
+            {canShift && (
+              <button className="icon-btn" onClick={() => shift(-1)} aria-label="prev">
+                ‹
+              </button>
+            )}
+            <span className="muted" style={{ fontSize: '0.95em', whiteSpace: 'nowrap' }}>
+              📅 {text}
+            </span>
+            {canShift && (
+              <button className="icon-btn" onClick={() => shift(1)} disabled={!canNext} aria-label="next">
+                ›
+              </button>
+            )}
           </div>
         )
       })()}
