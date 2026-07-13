@@ -14,6 +14,27 @@ export function Settings() {
   const { show, Toast } = useToast()
 
   const [showTutorial, setShowTutorial] = useState(false)
+  const [updating, setUpdating] = useState(false)
+
+  async function checkUpdate() {
+    setUpdating(true)
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations()
+        await Promise.all(regs.map((r) => r.unregister().catch(() => {})))
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys()
+        await Promise.all(keys.map((k) => caches.delete(k)))
+      }
+    } catch (e) {
+      console.error(e)
+    }
+    // 加上時間戳避免快取，並強制重新載入
+    const url = new URL(window.location.href)
+    url.searchParams.set('_r', String(Date.now()))
+    window.location.replace(url.toString())
+  }
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState(user?.display_name ?? '')
 
@@ -216,6 +237,19 @@ export function Settings() {
         <button className="link" onClick={() => setShowTutorial(true)}>
           📖 {t('settings.replayTutorial')}
         </button>
+      </div>
+
+      {/* 檢查更新 */}
+      <div className="card">
+        <button className="btn secondary" onClick={checkUpdate} disabled={updating}>
+          🔄 {updating ? t('settings.updating') : t('settings.checkUpdate')}
+        </button>
+        <div className="muted" style={{ fontSize: '0.85em', marginTop: 8 }}>
+          {t('settings.checkUpdateHint')}
+        </div>
+        <div className="muted center" style={{ fontSize: '0.8em', marginTop: 12 }}>
+          {t('settings.version')}：{__BUILD_TIME__}
+        </div>
       </div>
       <Toast />
     </div>

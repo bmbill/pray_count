@@ -170,6 +170,10 @@ export const translations = {
     'settings.editName': '修改姓名',
     'settings.showPast': '顯示已結束／已退出的小組',
     'settings.showPastHint': '關閉時，首頁只顯示進行中的小組（預設關閉）',
+    'settings.checkUpdate': '檢查更新（載入最新版）',
+    'settings.checkUpdateHint': '看到新功能沒出現時，點這裡強制更新到最新版本。',
+    'settings.version': '版本',
+    'settings.updating': '更新中…',
 
     'error.generic': '發生錯誤，請稍後再試',
     'error.network': '連線失敗，請檢查網路',
@@ -342,6 +346,10 @@ export const translations = {
     'settings.editName': 'Edit name',
     'settings.showPast': 'Show ended / left groups',
     'settings.showPastHint': 'When off, Home shows only ongoing groups (off by default)',
+    'settings.checkUpdate': 'Check for updates',
+    'settings.checkUpdateHint': 'If a new feature doesn’t appear, tap here to force the latest version.',
+    'settings.version': 'Version',
+    'settings.updating': 'Updating…',
 
     'error.generic': 'Something went wrong, please try again',
     'error.network': 'Connection failed, please check your network',

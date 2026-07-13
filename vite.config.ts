@@ -6,6 +6,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 // 因此 base 設為 '/pray_count/'。若你的 repo 名稱不同，改這裡即可。
 export default defineConfig({
   base: '/pray_count/',
+  define: {
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString().slice(0, 16).replace('T', ' ')),
+  },
   plugins: [
     react(),
     VitePWA({
