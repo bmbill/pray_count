@@ -144,6 +144,24 @@ export function Settings() {
         </div>
       </div>
 
+      {/* 小組顯示 */}
+      <div className="card">
+        <label className="field" style={{ marginBottom: 0 }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <input
+              type="checkbox"
+              checked={settings.showPastGroups ?? false}
+              onChange={(e) => updateSettings({ showPastGroups: e.target.checked })}
+              style={{ width: 24, height: 24, minHeight: 0 }}
+            />
+            {t('settings.showPast')}
+          </span>
+        </label>
+        <div className="muted" style={{ fontSize: '0.85em', marginTop: 8 }}>
+          {t('settings.showPastHint')}
+        </div>
+      </div>
+
       {/* 同步裝置 */}
       <div className="card stack">
         <div className="card-title">{t('settings.sync')}</div>

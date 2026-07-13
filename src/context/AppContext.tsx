@@ -18,6 +18,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   fontFamily: 'default',
   theme: 'warm',
   tutorialDone: false,
+  showPastGroups: false,
 }
 
 const SETTINGS_KEY = 'praycount-settings'

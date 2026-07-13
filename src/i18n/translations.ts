@@ -66,6 +66,7 @@ export const translations = {
     'home.viewList': '條列',
     'home.leftSection': '已退出的小組',
     'home.rejoin': '重新加入',
+    'home.pastHidden': '另有 {n} 個已結束或已退出的小組（可到設定開啟顯示）',
     'home.moveUp': '上移',
     'home.moveDown': '下移',
 
@@ -167,6 +168,8 @@ export const translations = {
     'settings.sync.invalid': '配對碼不正確或已過期',
     'settings.replayTutorial': '重看教學',
     'settings.editName': '修改姓名',
+    'settings.showPast': '顯示已結束／已退出的小組',
+    'settings.showPastHint': '關閉時，首頁只顯示進行中的小組（預設關閉）',
 
     'error.generic': '發生錯誤，請稍後再試',
     'error.network': '連線失敗，請檢查網路',
@@ -235,6 +238,7 @@ export const translations = {
     'home.viewList': 'List',
     'home.leftSection': 'Groups you left',
     'home.rejoin': 'Rejoin',
+    'home.pastHidden': '{n} ended or left group(s) hidden (enable in Settings)',
     'home.moveUp': 'Move up',
     'home.moveDown': 'Move down',
 
@@ -336,6 +340,8 @@ export const translations = {
     'settings.sync.invalid': 'Code is incorrect or expired',
     'settings.replayTutorial': 'Replay tutorial',
     'settings.editName': 'Edit name',
+    'settings.showPast': 'Show ended / left groups',
+    'settings.showPastHint': 'When off, Home shows only ongoing groups (off by default)',
 
     'error.generic': 'Something went wrong, please try again',
     'error.network': 'Connection failed, please check your network',

@@ -13,6 +13,7 @@ export function Home() {
   const [left, setLeft] = useState<{ id: string; name: string }[]>([])
   const [sortMode, setSortMode] = useState(false)
   const view = settings.viewMode ?? 'card'
+  const showPast = settings.showPastGroups ?? false
 
   useEffect(() => {
     api.getMyProjects().then(setProjects).catch((e) => {
@@ -158,7 +159,7 @@ export function Home() {
       ) : view === 'card' ? (
         <>
           {active.map((p, i) => card(p, true, i))}
-          {ended.length > 0 && (
+          {showPast && ended.length > 0 && (
             <>
               <h2 style={{ fontSize: '1.05em', color: 'var(--text-soft)', marginTop: 24 }}>
                 {t('home.endedSection')}（{ended.length}）
@@ -170,7 +171,7 @@ export function Home() {
       ) : (
         <>
           <div className="list">{active.map((p, i) => row(p, true, i))}</div>
-          {ended.length > 0 && (
+          {showPast && ended.length > 0 && (
             <>
               <h2 style={{ fontSize: '1.05em', color: 'var(--text-soft)', marginTop: 24 }}>
                 {t('home.endedSection')}（{ended.length}）
@@ -181,7 +182,7 @@ export function Home() {
         </>
       )}
 
-      {left.length > 0 && (
+      {showPast && left.length > 0 && (
         <>
           <h2 style={{ fontSize: '1.05em', color: 'var(--text-soft)', marginTop: 24 }}>
             {t('home.leftSection')}（{left.length}）
@@ -195,6 +196,12 @@ export function Home() {
             </div>
           ))}
         </>
+      )}
+
+      {!showPast && projects !== null && ended.length + left.length > 0 && (
+        <div className="muted center" style={{ marginTop: 20, fontSize: '0.9em' }}>
+          {t('home.pastHidden', { n: ended.length + left.length })}
+        </div>
       )}
     </div>
   )

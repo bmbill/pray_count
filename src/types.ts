@@ -8,6 +8,7 @@ export interface UserSettings {
   tutorialDone: boolean
   projectOrder?: string[]
   viewMode?: 'card' | 'list'
+  showPastGroups?: boolean
 }
 
 export interface AppUser {
